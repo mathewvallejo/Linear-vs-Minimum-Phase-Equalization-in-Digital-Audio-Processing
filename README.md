@@ -1,5 +1,5 @@
 # Linear-vs-Minimum-Phase-Equalization-in-Digital-Audio-Processing
-Abstract
+Abstract:
 This study investigates the perceptible impact of audio equalizers (EQs) designed with infinite
 impulse response (IIR) minimum-phase filtering compared to those designed with infinite
 impulse response (IIR) linear-phase filtering. The purpose of the investigation is to determine the
