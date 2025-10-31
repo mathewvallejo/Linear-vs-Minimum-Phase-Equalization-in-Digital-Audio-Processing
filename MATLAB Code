@@ -1,0 +1,105 @@
+%%% Minimum-phase IIR filter MATLAB code:
+% Min-phase IIR Peak Filter
+fs = 44100; % Hz
+% Filter parameters
+gain_db = 6;
+f0 = 5000;
+bw = 1000;
+% Quality factor
+Q = f0 / bw;
+% Calculate intermediate values
+wcT = 2 * pi * f0 / fs;
+K = tan(wcT / 2);
+V = 10^(gain_db / 20);
+% Compute filter coefficients
+b0 = 1 + V * K / Q + K^2;
+b1 = 2 * (K^2 - 1);
+b2 = 1 - V * K / Q + K^2;
+a0 = 1 + K / Q + K^2;
+a1 = 2 * (K^2 - 1);
+a2 = 1 - K / Q + K^2;
+% Normalize coefficients
+B = [b0, b1, b2] / a0;
+A = [a0, a1, a2] / a0;
+% Plot frequency response
+figure;
+freqz(B, A, 1024, fs);
+title('Minimum-Phase IIR Peak Filter');
+figure;
+grpdelay(B, A, 1024, fs);
+title('Group Delay of the Minimum-Phase IIR Peak Filter');
+% Pole-zero diagram
+figure;
+zplane(B, A);
+title('Poles and Zeros of the Minimum-Phase Peak Filter');
+%% Process and Analyze Audio
+% Load the audio file
+audioFileName = 'Sin440_5k.wav';
+[audioIn, audioFs] = audioread(audioFileName);
+% Ensure the sampling rates match
+if audioFs ~= fs
+error('Audio file sampling rate must match filter sampling rate.');
+end
+% Frequency response of the original audio signal
+figure;
+plot_frequency_spectrum(audioIn, fs, 'Sin Original');
+% Apply the IIR filter to the audio
+audioOut = filter(B, A, audioIn);
+% Frequency response of the filtered audio signal
+figure;
+plot_frequency_spectrum(audioOut, fs, 'IIR Sin Filtered');
+% Play the original audio file
+disp('Playing original audio');
+sound(audioIn, fs);
+pause(length(audioIn) / fs + 1);
+14
+% Play the filtered audio file
+disp('Playing filtered audio');
+sound(audioOut, fs);
+
+%%% Linear-Phase FIR filter MATLAB code:
+%% Lin-phase FIR filter
+% Filter parameters
+fs = 44100;
+numTaps = 101;
+% FIR Equalizer Design
+bands = [0 300 600 4800 4900 5000 5300 fs/2] / (fs/2);
+desired = [0 0 0 0 0 1 0 0];
+weights = [1 1 1 1];
+% Build the filter
+firCoeffs = firpm(numTaps - 1, bands, desired, weights);
+% Plot frequency response
+figure;
+freqz(firCoeffs, 1, 1024, fs);
+title('FIR Filter Magnitude and Phase Response');
+figure;
+grpdelay(firCoeffs, 1, 1024, fs);
+title('FIR Filter Group Delay');
+% Pole-zero diagram
+figure;
+zplane(firCoeffs, 1);
+title('Poles and Zeros of the Linear-Phase Peak Filter');
+%% Process and Analyze Audio
+% Load the audio file
+audioFileName = 'Sin440_5k.wav';
+[audioIn, audioFs] = audioread(audioFileName);
+% Ensure the sampling rates match
+if audioFs ~= fs
+error('Audio file sampling rate must match FIR filter sampling rate.');
+end
+% 2.) Frequency response of the original audio signal
+figure;
+plot_frequency_spectrum(audioIn, fs, 'Sin Original');
+% Apply the FIR filter to the audio
+audioOut = filter(firCoeffs, 1, audioIn);
+% Frequency response of the filtered audio signal
+figure;
+plot_frequency_spectrum(audioOut, fs, 'FIR Sin Filtered');
+%%
+% Play the original audio file
+disp('Playing original audio');
+sound(audioIn, fs);
+pause(length(audioIn) / fs + 1);
+% Play the filtered audio file
+disp('Playing filtered audio');
+sound(audioOut, fs);
